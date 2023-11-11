@@ -11,7 +11,7 @@ import AnswerDiv from "./components/AnswerDiv";
 import Score from "./components/Score";
 
 function App() {
-  const currIndex = parseInt(localStorage.getItem("currQuestion"), 10);
+  const currIndex = parseInt(localStorage.getItem("currQuestion"), 10) ||0;
   const [currQuestion, setCurrQuestion] = useState(currIndex);
   const [showAnswer, setShowAnswer] = useState(false);
   const [score, setScore] = useState(0);
