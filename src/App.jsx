@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { Container } from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import Top from "./components/Top";
 import Question from "./components/Question";
 import Options from "./components/Options";
@@ -11,30 +11,80 @@ import AnswerDiv from "./components/AnswerDiv";
 import Score from "./components/Score";
 
 function App() {
-  const [currQuestion, setCurrQuestion] = useState(0);
+  const currIndex = parseInt(localStorage.getItem("currQuestion"), 10);
+  const [currQuestion, setCurrQuestion] = useState(currIndex);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [score, setScore] = useState(0)
+  const [score, setScore] = useState(0);
 
   useEffect(() => {
-    const currIndex = localStorage.getItem("currQuestion");
-    setCurrQuestion(parseInt(currIndex, 10) || 0);
+    const currIndex = parseInt(localStorage.getItem("currQuestion"), 10);
+    setCurrQuestion(currIndex);
   }, []);
 
   useEffect(() => {
     localStorage.setItem("currQuestion", currQuestion);
   }, [currQuestion]);
-   console.log(score);
 
+  const handleCheck = () => {
+    // Toggle the visibility of the answer div
+    setShowAnswer((prevShowAnswer) => !prevShowAnswer);
+  };
+
+  const handleFinish = () => {
+    setCurrQuestion(0);
+    setScore(0);
+    localStorage.removeItem("flaggedQuestions");
+  };
   return (
     <Container className="my-3">
-      <Score score={score} />
-      <Top setCurrQuestion={setCurrQuestion} currQuestion={currQuestion} setShowAnswer={setShowAnswer} />
-      <Question
-        qNo={quizzes[currQuestion].questionNo}
-        text={quizzes[currQuestion].question}
-      />
-      <Options quizz={quizzes[currQuestion]} setCurrQuestion={setCurrQuestion} setShowAnswer={setShowAnswer} setScore={setScore} />
-      <AnswerDiv quizz={quizzes[currQuestion]} showAnswer={showAnswer} />
+      <Row>
+        <Col>
+          <Top setCurrQuestion={setCurrQuestion} currQuestion={currQuestion}  totalQuiz={quizzes.length} />
+        </Col>
+      </Row>
+      <Row className="my-3">
+        <Col>
+          <Question
+            qNo={quizzes[currQuestion].questionNo}
+            text={quizzes[currQuestion].question}
+          />
+        </Col>
+        <Col>
+          <Button variant="success" onClick={handleCheck}>
+            Check
+          </Button>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Options
+            quizz={quizzes[currQuestion]}
+            setCurrQuestion={setCurrQuestion}
+            setScore={setScore}
+            setShowAnswer={setShowAnswer}
+            totalQuiz={quizzes.length}
+          />
+          <AnswerDiv quizz={quizzes[currQuestion]} showAnswer={showAnswer} />
+        </Col>
+        <Col>
+          <Card>
+            <Card.Body>
+              <Card.Title>
+                <Score score={score} />
+              </Card.Title>
+              <Card.Text>
+                <p>Current Question/Total Questons</p>
+                <h4>
+                  {currQuestion + 1}/{quizzes.length}
+                </h4>
+              </Card.Text>
+              <Button variant="primary" onClick={handleFinish}>
+                Finish
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
     </Container>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form } from "react-bootstrap";
 
-function Options({ quizz, setCurrQuestion, setShowAnswer, setScore }) {
+function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) {
   const [isCorrect, setIsCorrect] = useState(null);
   const [userAnswers, setUserAnswers] = useState({});
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -54,8 +54,12 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore }) {
       if (isAnswerCorrect) {
         setShowAnswer(false);
         setCurrQuestion((prev) => {
-          setScore((prevScore) => prevScore + 1);
-          return prev + 1;
+          if (prev < totalQuiz) {
+            setScore((prevScore) => prevScore + 1);
+            return prev + 1;
+          } else {
+            return prev;
+          }
         });
         playSound(true);
       } else {
@@ -72,7 +76,7 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore }) {
             type="text"
             placeholder="Free Choice"
           />
-          <Button onClick={checkAnswer}>Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">Submit</Button>
         </div>
       );
     } else if (type === "Fill in the Blank") {
@@ -83,7 +87,7 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore }) {
             type="text"
             placeholder="Fill in the blank"
           />
-          <Button onClick={checkAnswer}>Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">Submit</Button>
         </div>
       );
     } else if (type === "Matrix") {
@@ -95,11 +99,25 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore }) {
               <Form.Control type="text" placeholder="Matching capital" />
             </div>
           ))}
-          <Button onClick={checkAnswer}>Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">Submit</Button>
         </div>
       );
     } else if (type === "Sorting") {
       // Define an array to hold the sorted options
+      return (
+        <div>
+          <ul>
+          {options.map((option, index) => (
+            <li
+              key={index}
+              id={`option-${index}`}
+              onChange={() => setSelectedAnswer(option)}
+            >{option}</li>
+          ))}
+          </ul>
+          <Button onClick={checkAnswer} className="my-2">Submit</Button>
+        </div>
+      );
     } else if (type === "Single Choice") {
       return (
         <div>
@@ -113,7 +131,7 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore }) {
               onChange={() => setSelectedAnswer(option)}
             />
           ))}
-          <Button onClick={checkAnswer}>Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">Submit</Button>
         </div>
       );
     } else if (type === "Multiple Choice") {
@@ -136,7 +154,7 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore }) {
               }}
             />
           ))}
-          <Button onClick={checkAnswer}>Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">Submit</Button>
         </div>
       );
     }
