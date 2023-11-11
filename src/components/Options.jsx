@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form } from "react-bootstrap";
+import DragComponent from "./DragComponent";
 
-function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) {
+function Options({
+  quizz,
+  setCurrQuestion,
+  setShowAnswer,
+  setScore,
+  totalQuiz,
+}) {
   const [isCorrect, setIsCorrect] = useState(null);
   const [userAnswers, setUserAnswers] = useState({});
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -9,7 +16,8 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
   const [audio, setAudio] = useState(new Audio());
 
   const renderOptions = () => {
-    const { type, options, correctAnswer, correctAnswers } = quizz;
+    const { type, options, correctAnswer, correctAnswers, correctOrder } =
+      quizz;
 
     const playSound = (isCorrect) => {
       const soundFile = isCorrect ? "correct.mp3" : "wrong.mp3";
@@ -30,6 +38,8 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
         userAnswer = selectedAnswers;
       } else if (type === "Fill in the Blank") {
         userAnswer = document.getElementById("fillInBlankAnswer").value;
+      } else if (type === "Sorting") {
+        userAnswer = selectedAnswer;
       }
 
       setUserAnswers({
@@ -47,6 +57,13 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
           correctAnswers.every((correctOption) =>
             userAnswer.includes(correctOption)
           );
+      } else if (type === "Sorting") {
+        const userAnswerArr = userAnswer.map((item) => item.text);
+        isAnswerCorrect =
+          JSON.stringify(userAnswerArr) === JSON.stringify(correctOrder);
+        console.log(correctOrder);
+        console.log(userAnswer);
+        console.log("sorting answer", isAnswerCorrect);
       }
 
       setIsCorrect(isAnswerCorrect);
@@ -54,7 +71,7 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
       if (isAnswerCorrect) {
         setShowAnswer(false);
         setCurrQuestion((prev) => {
-          if (prev < totalQuiz) {
+          if (prev+1 < totalQuiz) {
             setScore((prevScore) => prevScore + 1);
             return prev + 1;
           } else {
@@ -64,7 +81,13 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
         playSound(true);
       } else {
         playSound(false);
-        setCurrQuestion((prev) => prev + 1);
+        setCurrQuestion((prev) =>{
+          if (prev+1 < totalQuiz) {
+            return prev + 1;
+          } else {
+            return prev;
+          }
+        });
       }
     };
 
@@ -76,7 +99,9 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
             type="text"
             placeholder="Free Choice"
           />
-          <Button onClick={checkAnswer} className="my-2">Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">
+            Submit
+          </Button>
         </div>
       );
     } else if (type === "Fill in the Blank") {
@@ -87,7 +112,9 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
             type="text"
             placeholder="Fill in the blank"
           />
-          <Button onClick={checkAnswer} className="my-2">Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">
+            Submit
+          </Button>
         </div>
       );
     } else if (type === "Matrix") {
@@ -99,23 +126,22 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
               <Form.Control type="text" placeholder="Matching capital" />
             </div>
           ))}
-          <Button onClick={checkAnswer} className="my-2">Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">
+            Submit
+          </Button>
         </div>
       );
     } else if (type === "Sorting") {
       // Define an array to hold the sorted options
       return (
         <div>
-          <ul>
-          {options.map((option, index) => (
-            <li
-              key={index}
-              id={`option-${index}`}
-              onChange={() => setSelectedAnswer(option)}
-            >{option}</li>
-          ))}
-          </ul>
-          <Button onClick={checkAnswer} className="my-2">Submit</Button>
+          <DragComponent
+            options={options}
+            setSelectedAnswer={setSelectedAnswer}
+          />
+          <Button onClick={checkAnswer} className="my-2">
+            Submit
+          </Button>
         </div>
       );
     } else if (type === "Single Choice") {
@@ -131,7 +157,9 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
               onChange={() => setSelectedAnswer(option)}
             />
           ))}
-          <Button onClick={checkAnswer} className="my-2">Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">
+            Submit
+          </Button>
         </div>
       );
     } else if (type === "Multiple Choice") {
@@ -154,7 +182,9 @@ function Options({ quizz, setCurrQuestion, setShowAnswer, setScore ,totalQuiz}) 
               }}
             />
           ))}
-          <Button onClick={checkAnswer} className="my-2">Submit</Button>
+          <Button onClick={checkAnswer} className="my-2">
+            Submit
+          </Button>
         </div>
       );
     }
